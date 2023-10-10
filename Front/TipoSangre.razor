@@ -1,0 +1,107 @@
+﻿@page "/"
+
+@inject HttpClient Http
+
+<div class="d-flex justify-content-between">
+    <h3>Tipos de Sangre</h3>
+    <button class="btn btn-info" @onclick="crear">AGREGAR ♫</button>
+</div>
+
+@if (tipos_Sangre == null)
+{
+    <p><em>Cargando...</em></p>
+}
+else
+{
+    <table class='table'>
+        <thead>
+            <tr>
+                <th>Id_Tipo_Sangre</th>
+                <th>Sangre</th>
+                <th>Eliminar</th>
+                <th>Editar</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var tipoSangre in tiposSangre)
+            {
+                <tr>
+                    <td>@tipoSangre.IdTipoSangre</td>
+                    <td>@tipoSangre.Sangre</td>
+                    <td><button class="btn btn-danger" @onclick="(e) => borrar(tipo_Sangre.Id_Tipo_Sangre)">✖️</button></td>
+                    <td>
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+                            Lanzar modo de demostración
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@if (true)
+{
+    <div class="modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Formulario Estudiantes</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Bienvenido a este nuevo mundo</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary">Save changes</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private string errorMessage;
+
+
+
+    private TipoSangreClass[] tiposSangre;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await cargarTipoSangre();
+    }
+
+    protected async Task cargarTipoSangre()
+    {
+        tiposSangre = await Http.GetFromJsonAsync<TipoSangreClass[]>("http://localhost:5088/api/TipoSangres");
+    }
+
+    private async Task editar(int estudianteId = 1)
+    {
+
+    }
+
+    private async Task crear()
+    {
+
+    }
+
+    private async Task borrar(int IdTipoSangre)
+    {
+        var response = await Http.DeleteAsync($"http://localhost:5088/api/TipoSangres/{IdTipoSangre}");
+        if (response.IsSuccessStatusCode)
+        {
+            await cargarTipoSangre();
+        }
+    }
+
+    class TipoSangreClass
+    {
+        public int IdTipoSangre { get; set; }
+        public required string Sangre { get; set; }
+    }
+}

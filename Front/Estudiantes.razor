@@ -1,0 +1,109 @@
+﻿@page "/estudiantes"
+@using System.Net.Http
+@inject HttpClient Http
+
+<div class="d-flex justify-content-between">
+    <h3>Estudiantes</h3>
+    <button class="btn btn-info" @onclick="crear">Agregar ♫</button>
+</div>
+
+@if (estudiantes == null)
+{
+    <p><em>Espere un momento por favor</em></p>
+}
+else
+{
+    <table class='table'>
+        <thead>
+            <tr>
+                <th>Carnet</th>
+                <th>Nombres</th>
+                <th>Apellidos</th>
+                <th>Direccion</th>
+                <th>Telefono</th>
+                <th>Correo_Electronico</th>
+                <th>Id_TipoSangre</th>
+                <th>Fecha_Nacimiento</th>
+                <th>Eliminar</th>
+                <th>Editar</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var estudiante in estudiantes)
+            {
+                <tr>
+                    <td>@estudiante.Carnet</td>
+                    <td>@estudiante.Nombres</td>
+                    <td>@estudiante.Apellidos</td>
+                    <td>@estudiante.Direccion</td>
+                    <td>@estudiante.Telefono</td>
+                    <td>@estudiante.Correo_Electronico</td>
+                    <td>@estudiante.Tipo_Sangre</td>
+                    <td>@estudiante.Fecha_Nacimiento</td>
+                    <td><button class="btn btn-danger" @onclick="(e) => borrar(estudiante.IdEstudiante)">✖️</button></td>
+                    <td><button class="btn btn-primary" @onclick="(e) => editar(estudiante.IdEstudiante)">✏️</button></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger">
+            @errorMessage
+        </div>
+    }
+}
+
+@code {
+    private Estudiante[] estudiantes;
+    private string errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarEstudiante();
+    }
+
+    private async Task CargarEstudiante()
+    {
+        estudiantes = await Http.GetFromJsonAsync<Estudiante[]>("http://localhost:5088/api/Estudiantes");
+    }
+
+    private async Task borrar(int estudianteId = 1)
+    {
+        var response = await Http.DeleteAsync($"http://localhost:5088/api/Estudiantes/{estudianteId}");
+
+        if (response.IsSuccessStatusCode)
+        {
+            await CargarEstudiante();
+            errorMessage = string.Empty;
+        }
+        else
+        {
+            errorMessage = "A ocurrido un error, inténtalo de nuevo Por favor.";
+        }
+    }
+
+    private async Task editar(int estudianteId = 1)
+    {
+
+    }
+
+    private async Task crear()
+    {
+        
+    }
+
+    public class Estudiante
+    {
+        public int IdEstudiante { get; set; }
+        public string Carnet { get; set; }
+        public string Nombres { get; set; }
+        public string Apellidos { get; set; }
+        public string Direccion { get; set; }
+        public string Telefono { get; set; }
+        public string Correo_Electronico { get; set; }
+        public string Tipo_Sangre { get; set; }
+        public DateTime Fecha_Nacimiento { get; set; }
+    }
+}
